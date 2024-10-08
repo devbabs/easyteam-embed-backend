@@ -67,6 +67,10 @@ app.post('/login', (req, res, next) => {
     const {username, password} = req.body
 
     if (username && password) {
+        return res.json({
+            username,
+            password
+        })
         db.query(`SELECT * FROM employees WHERE name = '${username}'`, async (error, results) => {
 
             if (error || results.length === 0) {
