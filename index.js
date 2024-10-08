@@ -38,9 +38,26 @@ app.get('/employees', authenticateToken, (req, res) => {
     // Check for authenticated Bearer token
     const authHeader = req.headers['authorization'];
     if (!authHeader) return res.sendStatus(400)
+    
+    db.query(`SELECT * FROM employees`, async (error, results) => {
 
-    res.json({
-        message: "Employees"
+        if (error || results.length === 0) {
+            return res.status(401).json({ message: 'Invalid username' });
+        }
+
+        const employees = results.map(employee => {
+            return {
+                id: employee.id,
+                name: employee.name,
+                location_id: employee.location_id,
+                is_admin: employee.is_admin
+            }
+        });
+        
+        res.json({
+            message: 'Employees fetched successfully',
+            employees
+        });
     })
 })
 
