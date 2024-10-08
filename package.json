@@ -1,0 +1,27 @@
+{
+  "name": "easyteam-embed-backend",
+  "version": "0.0.1",
+  "description": "EasyTeam Embed Sample Project Backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --env-file=.env index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/devbabs/easyteam-embed-backend.git"
+  },
+  "author": "Babalola Macaulay",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/devbabs/easyteam-embed-backend/issues"
+  },
+  "homepage": "https://github.com/devbabs/easyteam-embed-backend#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.3",
+    "uuid": "^10.0.0"
+  }
+}
