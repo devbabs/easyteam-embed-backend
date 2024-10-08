@@ -13,7 +13,7 @@ const privateKey = fs.readFileSync('priv (1).key', 'utf8');
 
 // Middleware to validate JWT token
 const authenticateToken = (req, res, next) => {
-    // Get token from the Authorization header (e.g., "Bearer <token>")
+    // Get token from the Authorization header
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];  // Extract the token after "Bearer"
 
@@ -68,7 +68,8 @@ app.post('/login', (req, res, next) => {
 
     if (username && password) {
         db.query(`SELECT * FROM employees WHERE name = '${username}'`, async (error, results) => {
-
+            
+            console.log("Check for username response", error, results)
             if (error || results.length === 0) {
                 return res.status(401).json({ message: 'Invalid username' });
             }
@@ -120,10 +121,6 @@ app.post('/login', (req, res, next) => {
     } else {
         return res.status(401).json({ message: 'You need to provide a username and password' });
     }
-})
-
-app.get('/', (req, res) => {
-    res.send(`Hello! I'm active`)
 })
 
 app.listen(port, () => {
