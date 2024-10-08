@@ -10,6 +10,16 @@ app.use(express.json());
 const port = 3000
 const easyTeamPartnerId = 'd40e2f92-2523-4833-a9cc-a95cef576876'
 
+app.get('/employees', (req, res) => {
+    // Check for authenticated Bearer token
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) return res.sendStatus(400)
+
+    res.json({
+        message: "Employees"
+    })
+})
+
 app.post('/login', (req, res, next) => {
     var privateKey = fs.readFileSync('priv (1).key', 'utf8');
 
