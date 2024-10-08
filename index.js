@@ -9,8 +9,32 @@ app.use(express.json());
 
 const port = 3000
 const easyTeamPartnerId = 'd40e2f92-2523-4833-a9cc-a95cef576876'
+const privateKey = fs.readFileSync('priv (1).key', 'utf8');
 
-app.get('/employees', (req, res) => {
+// Middleware to validate JWT token
+const authenticateToken = (req, res, next) => {
+    // Get token from the Authorization header (e.g., "Bearer <token>")
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];  // Extract the token after "Bearer"
+
+    if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+
+    // Verify the token
+    jwt.verify(token, privateKey, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid or expired token' });
+        }
+
+        // Token is valid, save user data to request for use in other routes
+        req.user = user;  // This stores the decoded JWT payload (e.g., userId) in req.user
+
+        next();  // Proceed to the next middleware or route handler
+    });
+};
+
+app.get('/employees', authenticateToken, (req, res) => {
     // Check for authenticated Bearer token
     const authHeader = req.headers['authorization'];
     if (!authHeader) return res.sendStatus(400)
@@ -21,8 +45,6 @@ app.get('/employees', (req, res) => {
 })
 
 app.post('/login', (req, res, next) => {
-    var privateKey = fs.readFileSync('priv (1).key', 'utf8');
-
     if (!req.body) return res.sendStatus(400)
     
     const {username, password} = req.body
@@ -81,6 +103,10 @@ app.post('/login', (req, res, next) => {
     }
 })
 
+app.get('/', (req, res) => {
+    res.send(`Hello! I'm active`)
+})
+
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`Embed app listening on port ${port}`)
 })
