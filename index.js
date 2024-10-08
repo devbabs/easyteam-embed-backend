@@ -53,7 +53,7 @@ app.post('/login', (req, res, next) => {
         db.query(`SELECT * FROM employees WHERE name = '${username}'`, async (error, results) => {
 
             if (error || results.length === 0) {
-                return res.status(401).json({ message: 'Invalid email' });
+                return res.status(401).json({ message: 'Invalid username' });
             }
     
             const user = results[0]; // Get the user from the query result
@@ -62,7 +62,7 @@ app.post('/login', (req, res, next) => {
             const passwordMatch = await bcrypt.compare(password, user.password);
     
             if (!passwordMatch) {
-                return res.status(401).json({ message: 'Invalid or password' });
+                return res.status(401).json({ message: 'Invalid password' });
             }
 
             const payload = {
@@ -100,6 +100,8 @@ app.post('/login', (req, res, next) => {
                 }
             });
         })
+    } else {
+        return res.status(401).json({ message: 'You need to provide a username and password' });
     }
 })
 
