@@ -2,20 +2,13 @@ const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 
-const dbConnection = mysql.createConnection({
+const dbConnectionPool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
+    connectionLimit: 10
 })
-
-dbConnection.connect((err) => {
-    if (err) {
-        console.error('Error connecting to the database:', err.stack);
-        return;
-    }
-    console.log('Connected to the MySQL database');
-});
 
 const createLocationsTable = () => {
     const createLocationsTableQuery = `
@@ -27,7 +20,7 @@ const createLocationsTable = () => {
         )
     `
 
-    dbConnection.query(createLocationsTableQuery, (error, results) => {
+    dbConnectionPool.query(createLocationsTableQuery, (error, results) => {
         if (error) throw error;
         console.log('Created Locations table');
     })
@@ -47,7 +40,7 @@ const createEmployeesTable = () => {
         )
     `
 
-    dbConnection.query(createEmployeesTableQuery, (error, results) => {
+    dbConnectionPool.query(createEmployeesTableQuery, (error, results) => {
         if (error) throw error;
         console.log('Created employees table');
     })
@@ -55,7 +48,7 @@ const createEmployeesTable = () => {
 
 const seedLocationEmployeesData = () => {
     // Check if locatons table is empty
-    dbConnection.query(`SELECT * FROM locations`, (err, rows) => {
+    dbConnectionPool.query(`SELECT * FROM locations`, (err, rows) => {
         if (err) {
             throw err
         }
@@ -103,7 +96,7 @@ const seedLocationEmployeesData = () => {
             locations.forEach(location => {
                 const locationId = uuidv4();
 
-                dbConnection.query(`INSERT INTO locations (id, name) VALUES ('${locationId}', '${location.name}')`, (error, results) => {
+                dbConnectionPool.query(`INSERT INTO locations (id, name) VALUES ('${locationId}', '${location.name}')`, (error, results) => {
                     if (error) throw error;
                     console.log(`Inserted location: ${location.name}`, results.insertId)
 
@@ -112,7 +105,7 @@ const seedLocationEmployeesData = () => {
                         const userId = uuidv4();
                         const hashedPassword = await bcrypt.hash(employee.password, 10);
 
-                        dbConnection.query(`INSERT INTO employees (id, name, password, is_admin, location_id) VALUES ('${userId}', '${employee.name}', '${hashedPassword}', '${employee.is_admin}', '${locationId}')`, (error, results) => {
+                        dbConnectionPool.query(`INSERT INTO employees (id, name, password, is_admin, location_id) VALUES ('${userId}', '${employee.name}', '${hashedPassword}', '${employee.is_admin}', '${locationId}')`, (error, results) => {
                             if (error) throw error;
                             console.log(`Inserted employee: ${employee.name}`)        
                         })                
@@ -133,4 +126,4 @@ const seedLocationEmployeesData = () => {
     seedLocationEmployeesData()
 })()
 
-module.exports = dbConnection
+module.exports = dbConnectionPool
